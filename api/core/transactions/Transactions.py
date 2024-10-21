@@ -52,24 +52,9 @@ class Transactions:
         }
     
     def registerTransaction(self, request, lang, userid, data):
-        # return {
-        #     "txnDate":data["txnDate"],
-        #     "event_id":data["event_id"],
-        #     "member_id":data["member_id"],
-        #     "account_id":data["account_id"],
-        #     "Amount":data["Amount"]
-        # }
-        # eventid = data["event_id"]
-        # return {
-        #     "eventNumber": eventid
-        # }
-        # return {
-        #     "event_id":data["event_id"]
-        # }
         match data["event_id"]:
             case 2:
-        # if data["event_id"] == 2:
-                return True
+                return data["event_id"]
             case 3:
         # if data["event_id"] == 3:
                 member = self.members.getMemberById(request, lang, data["member_id"])
@@ -96,19 +81,11 @@ class Transactions:
                     "phone_contact": member["phone_contact"],
                     "currentBalance": balanceAfter
                 }
-                # toUpdate.update(**updateRecord_dic)
+                
                 recordToUpdate = self.members.updateMemberCurrentBalance(request, lang, member["id"], updateRecord_dic)
                 # return member["currentBalance"]
                 return recordToUpdate
                 # return True
 
-            # return {
-            #     "txnDate":data["txnDate"],
-            #     "event_id":data["event_id"],
-            #     "member_id":data["member_id"],
-            #     "account_id":data["account_id"],
-            #     "Amount":data["Amount"]
-            # }
-    
     def updateTransaction(self, request, lang, userid, transationid, data):
         return True
