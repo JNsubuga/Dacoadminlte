@@ -1,0 +1,241 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Da'Co | Transactions</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
+    />
+    <!-- DataTables -->
+    <link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css'%}">
+    <link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css'%}">
+    <link rel="stylesheet" href="{% static 'plugins/datatables-buttons/css/buttons.bootstrap4.min.css'%}">
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="{% static 'plugins/fontawesome-free/css/all.min.css' %}"
+    />
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}" />
+    {% comment %} <link rel="stylesheet" href="{% static 'dist/css/custom.css' %}"> {% endcomment %}
+  </head>
+  {% comment %} <body class="hold-transition sidebar-mini"> {% endcomment %}
+  <body class="hold-transition sidebar-mini layout-navbar-fixed">
+  <!-- Site wrapper-->
+    <div class="wrapper">
+    <!-- Navbar -->
+      <!-- ========== Nav ==============-->
+      {% include 'parts/navbar.html' %}
+      <!--========== Nav ==============-->
+      <!-- ========== Aside ==============-->
+      {% include 'parts/sidemenu.html' %}
+      <!--========== Aside ==============--> 
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+          <div class="container-fluid">
+            <div class="row mb-2">
+              <div class="col-sm-6">
+                <h1>Transactions</h1>
+              </div>
+              <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                  <li class="breadcrumb-item"><a href="#">Home</a></li>
+                  <li class="breadcrumb-item active">Transactions</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+          <!-- /.container-fluid -->
+        </section>
+
+         <div class="modal fade" id="modal-xl">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <!--..spinner start-->
+                <div class="spinner-container" id="spinner-container-init-edit">
+                  <div class="spinner-overlay">
+                    <div class="spin"></div>
+                  </div>
+                </div>
+                <!--spinner end-->
+                <form id="transaction-form">
+                  <div class="row">
+                    {% csrf_token %}
+                    <input type="hidden" class="form-control" id="selected-transaction-id">
+                  
+                    <!-- Transaction Date -->
+                    <div class="col-md-6" id="div-name">
+                      <div class="form-group">
+                        <label class="col-form-label" for="txnDate-id">Transaction Date:*</label>
+                        <input type="date" id="txnDate-id" class="form-control form-control-sm" placeholder="Transaction Date ...">
+                      </div>
+                    </div>
+
+                    <!-- Event Id -->
+                    <div class="col-md-6" id="div-code">
+                      <div class="form-group">
+                        <label class="col-form-label" for="event-id-id">Event:</label>
+                        <select id="event-id-id" class="form-control form-control-sm rounded-0">
+                          <option>--SELECT EVENT--</option>
+                          {% for Event in events %}
+                            <option value="{{ Event.id }}">{{ Event.event }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Member Id -->
+                    <div class="col-md-6" id="div-year">
+                      <div class="form-group">
+                        <label class="col-form-label" for="member-id-id">Member:</label>
+                        <select id="member-id-id" class="form-control form-control-sm rounded-0">
+                          <option>--SELECT MEMBER--</option>
+                          {% for member in members %}
+                            <option value="{{ member.id }}">{{ member.names }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Account Id -->
+                    <div class="col-md-6" id="div-principle">
+                      <div class="form-group">
+                       <label class="col-form-label" for="account-id-id">Account:</label>
+                        <select id="account-id-id" class="form-control form-control-sm rounded-0">
+                          <option>--SELECT ACCOUNT--</option>
+                          {% for account in accounts %}
+                            <option value="{{ account.id }}">{{ account.name }}-{{ account.accountYear }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="col-md-12" id="div-principle">
+                      <div class="form-group">
+                        <label class="col-form-label" for="amount-id">Amount:*</label>
+                        <input type="number" id="amount-id" class="form-control form-control-sm" placeholder="Amount ...">
+                      </div>
+                    </div>
+
+                    <!--Submitted By-->
+                    <input type="hidden" id="submitted-by" class="form-control form-control-sm" value={{ auth_user.id }}>
+
+                    <!--Is Disabled-->
+                    <div class="custom-control custom-checkbox col-sm-12 text-center" id="is-confirmed">
+                      
+                    </div>
+
+                    <!--Alert Message-->
+                    <div id="form-alert" class="form-group pt-3 col-md-12">
+
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+
+              <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="save-btn" onclick="saveData()" class="btn btn-primary save-btn"></button>
+              </div>
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div> 
+        <!-- /.modal -->
+
+        <!-- Main content -->
+        <section class="content">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  
+                  <!--..spinner start-->
+                  <div class="spinner-container" id="spinner-container">
+                    <div class="spinner-overlay">
+                      <div class="spin"></div>
+                    </div>
+                  </div>
+                  <!--spinner end-->
+
+                  <div class="card-header d-flex">
+                    <h3 class="card-title">Transactions</h3>
+                    <button type="button" onclick="transactionForm()" class="btn btn-default btn-sm ml-auto"><i class="fa fa-plus"></i> Register a Transaction</button>
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                    <table
+                      id="transaction-data-table"
+                      class="table table-striped table-hover table-sm"
+                    >
+                      <thead>
+                        
+                      </thead>
+                      <tbody>
+                      
+                      </tbody>
+                    </table>
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+              </div>
+              <!-- /.col -->
+            </div>
+            <!-- /.row -->
+          </div>
+          <!-- /.container-fluid -->
+        </section>
+        <!-- /.content -->
+      </div>
+      <!-- /.content-wrapper -->
+      {% include 'parts/footer.html' %}
+
+      <!-- Control Sidebar -->
+      <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+      </aside>
+      <!-- /.control-sidebar -->
+    </div>
+    <!-- ./wrapper -->
+
+    <!-- jQuery -->
+    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- DataTables  & Plugins -->
+    <script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
+    <script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+    <!-- AdminLTE App -->
+    <!-- Page specific script -->
+    <script src="{% static 'api/transactions/transactions.js' %}"></script>
+  </body>
+</html>
